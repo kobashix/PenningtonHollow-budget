@@ -25,8 +25,6 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<BudgetItem>>({});
 
-  console.log('SOVTable items:', items?.length, items);
-
   const handleEdit = (item: BudgetItem) => {
     setEditingId(item.id);
     setEditValues(item);
