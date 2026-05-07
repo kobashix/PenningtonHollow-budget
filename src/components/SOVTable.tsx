@@ -320,15 +320,23 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
           <tbody>
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} className={row.getIsGrouped() ? 'group-row' : ''}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className={cell.getIsGrouped() ? 'group-cell' : ''}>
-                    {cell.getIsGrouped() ? (
-                      <strong>{cell.renderValue() as React.ReactNode}</strong>
-                    ) : cell.getIsAggregated() ? null : (
-                      flexRender(cell.column.columnDef.cell, cell.getContext())
-                    )}
-                  </td>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  if (cell.getIsGrouped()) {
+                    return (
+                      <td key={cell.id} className="group-cell">
+                        <strong>{cell.renderValue() as React.ReactNode}</strong>
+                      </td>
+                    );
+                  }
+                  if (cell.getIsAggregated()) {
+                    return null;
+                  }
+                  return (
+                    <td key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
