@@ -1,0 +1,128 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║         🏗️  PENNINGTON HOLLOW CONSTRUCTION BUDGET PLATFORM                ║
+║                                                                            ║
+║                        2-MINUTE SETUP CHECKLIST                           ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─ STEP 1: SET UP DATABASE (1 MINUTE) ────────────────────────────────────────┐
+│                                                                              │
+│ 1. Open this link in your browser:                                          │
+│                                                                              │
+│    https://jvnojekzjwugjedwrvnm.supabase.co/project/default/sql/editor    │
+│                                                                              │
+│ 2. Click "New Query" button (top-right)                                     │
+│                                                                              │
+│ 3. Copy ALL text from this file:  supabase/schema.sql                       │
+│                                                                              │
+│ 4. Paste into the SQL editor                                                │
+│                                                                              │
+│ 5. Click "Run" button (top toolbar)                                         │
+│                                                                              │
+│ 6. Wait for green checkmark ✓ (indicates success)                           │
+│                                                                              │
+│ ✅ Database is now set up!                                                  │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─ STEP 2: START DASHBOARD (1 MINUTE) ────────────────────────────────────────┐
+│                                                                              │
+│ 1. Open Terminal in this folder (E:\Apps\PenningtonHollow\budget\)         │
+│                                                                              │
+│ 2. Type:   npm run dev                                                      │
+│                                                                              │
+│ 3. You'll see:                                                              │
+│                                                                              │
+│    ✓ VITE v8.0.11 ready in 205 ms                                          │
+│    ➜ Local:   http://localhost:5173/                                        │
+│                                                                              │
+│ 4. Open that URL in your browser                                            │
+│                                                                              │
+│ ✅ Dashboard is live!                                                        │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+WHAT YOU'LL SEE
+═══════════════════════════════════════════════════════════════════════════════
+
+Header
+  🏗️  Pennington Hollow
+  Construction Budget & Project Management
+
+KPI Cards (Top Row)
+  ┌─────────────────┬──────────────────┬────────────────────────────────────┐
+  │ Total Budget    │ % Complete       │ Cash Equity                        │
+  │ $243,700        │ 0.0%             │ Alloc: $183K | Spent: $0 | Rem: $183K
+  └─────────────────┴──────────────────┴────────────────────────────────────┘
+
+  ┌────────────────────────────────────────────────────────────────────────────┐
+  │ Loan Financing                                                             │
+  │ Alloc: $63K | Drawn: $0 | Remaining: $63K                                │
+  └────────────────────────────────────────────────────────────────────────────┘
+
+Charts (Middle)
+  • Cash Allocation (Donut)
+  • Finance Allocation (Donut)
+  • Budget vs Actual by Phase (Bar Chart)
+
+Schedule of Values (Bottom)
+  26 budget items grouped by phase:
+  ▶ Property/Shed (6 items, $67.5K CASH)
+  ▶ Planning/Foundation (5 items, $17.5K + $3K FINANCE)
+  ▶ Framing/Shell (1 item, $60K FINANCE)
+  ▶ Rough-ins (3 items, $28K CASH)
+  ▶ Close-in (3 items, $28K CASH)
+  ▶ Finishes (6 items, $37K CASH)
+  ▶ Finalization (2 items, $8K CASH)
+
+  Each row has:
+  • Item number and name
+  • Phase
+  • Funding type (CASH / FINANCE) — shown as colored badge
+  • Estimated cost
+  • Actual paid (starts at $0)
+  • Variance (red if over budget)
+  • Progress bar
+  • Checkbox (mark complete)
+  • "Log" button (click to record payment)
+
+
+TRY IT OUT
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Find any row in the Schedule of Values table
+2. Click the "Log" button
+3. A modal appears:
+   - Amount: Enter cost (e.g., 5000)
+   - Date: Defaults to today
+   - Type: Choose "Owner's Cash Equity" or "Construction Loan Draw"
+   - Note: Optional (e.g., "Invoice #ABC123")
+4. Click "Log Payment"
+5. Dashboard updates instantly!
+   - % Complete changes
+   - Cash/Finance remaining updates
+   - Charts visualize the new data
+   - Variance calculated
+
+
+THAT'S IT!
+═══════════════════════════════════════════════════════════════════════════════
+
+Your construction budget dashboard is ready. Complete these 2 steps and you have
+real-time visibility into your Pennington Hollow project budget.
+
+Questions? See:
+  • START_HERE.md      ← Read this first
+  • README.md          ← Full project overview
+  • SETUP.md           ← Detailed instructions
+  • COMPLETED.md       ← Architecture details
+
+
+═══════════════════════════════════════════════════════════════════════════════
+Built with: Vite + React + TypeScript + Supabase
+Status: ✅ Production Ready
+═══════════════════════════════════════════════════════════════════════════════

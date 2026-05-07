@@ -1,0 +1,45 @@
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.kpi-value.cash {
+  color: #16a34a;
+}
+
+.kpi-value.finance {
+  color: #2563eb;
+}
+
+.kpi-detail {
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 6px;
+}

@@ -1,0 +1,167 @@
+.sov-table-wrapper {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.sov-table-wrapper h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sov-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.sov-table thead th {
+  background: var(--code-bg);
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-h);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.sov-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.1s;
+}
+
+.sov-table tbody tr:hover {
+  background-color: var(--accent-bg);
+}
+
+.sov-table tbody tr.group-row {
+  background-color: var(--code-bg);
+  font-weight: 600;
+}
+
+.sov-table tbody tr.group-row:hover {
+  background-color: var(--code-bg);
+}
+
+.sov-table tbody td {
+  padding: 12px 8px;
+  color: var(--text-h);
+}
+
+.sov-table tbody td.group-cell {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.expander-toggle,
+.expander-button {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+.expander-button:hover {
+  color: var(--accent);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-cash {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.badge-finance {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.variance-under {
+  color: #16a34a;
+}
+
+.variance-over {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.progress-bar-container {
+  position: relative;
+  height: 24px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.progress-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #c084fc);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.action-button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.action-button:hover {
+  opacity: 0.8;
+}
+
+.action-button:active {
+  opacity: 0.7;
+}

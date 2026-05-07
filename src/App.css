@@ -1,0 +1,91 @@
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+  font-family: var(--sans);
+  color: var(--text-h);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: linear-gradient(135deg, var(--accent), #c084fc);
+  color: white;
+  padding: 40px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  margin: 8px 0 0 0;
+  font-size: 16px;
+  opacity: 0.95;
+  font-weight: 400;
+}
+
+.app-main {
+  flex: 1;
+  padding: 32px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  background: var(--code-bg);
+}
+
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading-container h2,
+.error-container h2 {
+  font-size: 24px;
+  margin: 0 0 12px 0;
+  color: var(--text-h);
+}
+
+.error-container p {
+  color: var(--text);
+  margin: 0 0 20px 0;
+  font-size: 14px;
+}
+
+.retry-button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.retry-button:hover {
+  opacity: 0.9;
+}
