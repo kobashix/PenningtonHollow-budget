@@ -48,13 +48,27 @@ function App() {
   }
 
   if (error) {
+    const isTablesMissing = error.includes('does not exist') || error.includes('relation');
+
     return (
       <div className="app">
         <div className="error-container">
-          <h2>⚠️ Connection Error</h2>
+          <h2>⚠️ {isTablesMissing ? 'Database Setup Required' : 'Connection Error'}</h2>
           <p>{error}</p>
-          <button onClick={loadData} className="retry-button">
-            Retry
+          {isTablesMissing && (
+            <div style={{ marginTop: '20px', textAlign: 'left' }}>
+              <p><strong>Quick fix (1 minute):</strong></p>
+              <ol style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                <li>Open <a href="https://jvnojekzjwugjedwrvnm.supabase.co/project/default/sql/editor" target="_blank" rel="noreferrer" style={{ color: '#4f46e5', textDecoration: 'underline' }}>Supabase SQL Editor</a></li>
+                <li>Click "New Query"</li>
+                <li>Copy file: <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>supabase/schema.sql</code></li>
+                <li>Paste and click "Run"</li>
+                <li>Come back and refresh this page</li>
+              </ol>
+            </div>
+          )}
+          <button onClick={loadData} className="retry-button" style={{ marginTop: '20px' }}>
+            {isTablesMissing ? 'Check Again' : 'Retry'}
           </button>
         </div>
       </div>
