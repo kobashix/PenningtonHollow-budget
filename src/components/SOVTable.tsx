@@ -1,13 +1,4 @@
-import { useMemo, useState } from 'react';
-import {
-  useReactTable,
-  getCoreRowModel,
-  getGroupedRowModel,
-  getExpandedRowModel,
-  flexRender,
-  createColumnHelper,
-  type ExpandedState,
-} from '@tanstack/react-table';
+import { useState } from 'react';
 import type { BudgetItem } from '../types/budget';
 import { updateBudgetItem, deleteBudgetItem } from '../lib/queries';
 import '../styles/SOVTable.css';
@@ -18,16 +9,7 @@ interface SOVTableProps {
   onPaymentLogged: () => void;
 }
 
-const columnHelper = createColumnHelper<BudgetItem>();
-
 export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
-  const [expanded, setExpanded] = useState<ExpandedState>(() => {
-    const allExpanded: Record<string, boolean> = {};
-    items.forEach((item) => {
-      allExpanded[item.phase] = true;
-    });
-    return allExpanded;
-  });
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<BudgetItem>>({});
@@ -60,241 +42,16 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
     }
   };
 
-  const columns = useMemo(
-    () => [
-      columnHelper.display({
-        id: 'expander',
-        header: '▶',
-        cell: ({ row }) =>
-          row.getCanExpand() ? (
-            <button
-              className="expander-button"
-              onClick={row.getToggleExpandedHandler()}
-            >
-              {row.getIsExpanded() ? '▼' : '▶'}
-            </button>
-          ) : null,
-      }),
-      columnHelper.accessor('process_number', {
-        id: 'number',
-        header: '#',
-        cell: (info) => {
-          const item = info.row.original;
-          const isEditing = editingId === item.id;
-          return isEditing ? (
-            <input
-              type="number"
-              value={editValues.process_number || ''}
-              onChange={(e) =>
-                setEditValues({
-                  ...editValues,
-                  process_number: parseInt(e.target.value),
-                })
-              }
-              className="edit-input"
-            />
-          ) : (
-            info.getValue()
-          );
-        },
-      }),
-      columnHelper.accessor('action_name', {
-        header: 'Action / Description',
-        cell: (info) => {
-          const item = info.row.original;
-          const isEditing = editingId === item.id;
-          return isEditing ? (
-            <input
-              type="text"
-              value={editValues.action_name || ''}
-              onChange={(e) =>
-                setEditValues({
-                  ...editValues,
-                  action_name: e.target.value,
-                })
-              }
-              className="edit-input"
-            />
-          ) : (
-            info.getValue()
-          );
-        },
-      }),
-      columnHelper.display({
-        id: 'phase',
-        header: 'Phase',
-        cell: (info) => {
-          const item = info.row.original;
-          const isEditing = editingId === item.id;
-          return isEditing ? (
-            <input
-              type="text"
-              value={editValues.phase || ''}
-              onChange={(e) =>
-                setEditValues({ ...editValues, phase: e.target.value })
-              }
-              className="edit-input"
-            />
-          ) : (
-            item.phase
-          );
-        },
-      }),
-      columnHelper.display({
-        id: 'funding_type',
-        header: 'Funding',
-        cell: (info) => {
-          const item = info.row.original;
-          const isEditing = editingId === item.id;
-          return isEditing ? (
-            <select
-              value={editValues.funding_type || 'CASH'}
-              onChange={(e) =>
-                setEditValues({
-                  ...editValues,
-                  funding_type: e.target.value as 'CASH' | 'FINANCE',
-                })
-              }
-              className="edit-input"
-            >
-              <option value="CASH">CASH</option>
-              <option value="FINANCE">FINANCE</option>
-            </select>
-          ) : (
-            <span className={`badge badge-${item.funding_type.toLowerCase()}`}>
-              {item.funding_type}
-            </span>
-          );
-        },
-      }),
-      columnHelper.accessor('estimated_cost', {
-        header: 'Estimated',
-        cell: (info) => {
-          const item = info.row.original;
-          const isEditing = editingId === item.id;
-          return isEditing ? (
-            <input
-              type="number"
-              value={editValues.estimated_cost || ''}
-              onChange={(e) =>
-                setEditValues({
-                  ...editValues,
-                  estimated_cost: parseFloat(e.target.value),
-                })
-              }
-              className="edit-input"
-            />
-          ) : (
-            formatCurrency(info.getValue())
-          );
-        },
-      }),
-      columnHelper.display({
-        id: 'actual_paid',
-        header: 'Actual Paid',
-        cell: (info) => {
-          const actual = info.row.original.actual_paid || 0;
-          return formatCurrency(actual);
-        },
-      }),
-      columnHelper.display({
-        id: 'variance',
-        header: 'Variance',
-        cell: (info) => {
-          const variance =
-            (info.row.original.actual_paid || 0) -
-            info.row.original.estimated_cost;
-          const isOver = variance > 0;
-          return (
-            <span className={isOver ? 'variance-over' : 'variance-under'}>
-              {formatCurrency(variance)}
-            </span>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: 'progress',
-        header: 'Progress',
-        cell: (info) => {
-          const estimated = info.row.original.estimated_cost;
-          const actual = info.row.original.actual_paid || 0;
-          const percent = estimated > 0 ? (actual / estimated) * 100 : 0;
-          return (
-            <div className="progress-bar-container">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${Math.min(percent, 100)}%` }}
-              />
-              <span className="progress-text">{percent.toFixed(0)}%</span>
-            </div>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: 'actions',
-        header: 'Actions',
-        cell: (info) => {
-          const item = info.row.original;
-          const isEditing = editingId === item.id;
-          return (
-            <div className="action-buttons">
-              {isEditing ? (
-                <>
-                  <button
-                    className="action-button save-btn"
-                    onClick={handleSave}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="action-button cancel-btn"
-                    onClick={() => setEditingId(null)}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className="action-button edit-btn"
-                    onClick={() => handleEdit(item)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="action-button log-btn"
-                    onClick={() => setSelectedItemId(item.id)}
-                  >
-                    Log
-                  </button>
-                  <button
-                    className="action-button delete-btn"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    Delete
-                  </button>
-                </>
-              )}
-            </div>
-          );
-        },
-      }),
-    ],
-    [editingId, editValues, onPaymentLogged]
-  );
-
-  const table = useReactTable({
-    data: items,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getGroupedRowModel: getGroupedRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
-    state: {
-      expanded,
-      grouping: ['phase'],
+  const groupedByPhase = items.reduce(
+    (acc, item) => {
+      if (!acc[item.phase]) {
+        acc[item.phase] = [];
+      }
+      acc[item.phase].push(item);
+      return acc;
     },
-    onExpandedChange: setExpanded,
-  });
+    {} as Record<string, BudgetItem[]>
+  );
 
   return (
     <>
@@ -302,43 +59,177 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
         <h2>Schedule of Values (SOV)</h2>
         <table className="sov-table">
           <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
+            <tr>
+              <th>Phase</th>
+              <th>#</th>
+              <th>Action / Description</th>
+              <th>Funding</th>
+              <th>Estimated</th>
+              <th>Actual Paid</th>
+              <th>Variance</th>
+              <th>Progress</th>
+              <th>Actions</th>
+            </tr>
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className={row.getIsGrouped() ? 'group-row' : ''}>
-                {row.getVisibleCells().map((cell) => {
-                  if (cell.getIsGrouped()) {
-                    return (
-                      <td key={cell.id} className="group-cell">
-                        <strong>{cell.renderValue() as React.ReactNode}</strong>
-                      </td>
-                    );
-                  }
-                  if (cell.getIsAggregated()) {
-                    return null;
-                  }
-                  return (
-                    <td key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  );
-                })}
+            {Object.entries(groupedByPhase).map(([phase]) => (
+              <tr key={phase} className="group-row">
+                <td colSpan={9} className="group-cell">
+                  <strong>{phase}</strong>
+                </td>
               </tr>
             ))}
+            {items.map((item) => {
+              const isEditing = editingId === item.id;
+              const actual = item.actual_paid || 0;
+              const variance = actual - item.estimated_cost;
+              const percent =
+                item.estimated_cost > 0
+                  ? (actual / item.estimated_cost) * 100
+                  : 0;
+
+              return (
+                <tr key={item.id}>
+                  <td>{item.phase}</td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        value={editValues.process_number || ''}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            process_number: parseInt(e.target.value),
+                          })
+                        }
+                        className="edit-input"
+                      />
+                    ) : (
+                      item.process_number
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editValues.action_name || ''}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            action_name: e.target.value,
+                          })
+                        }
+                        className="edit-input"
+                      />
+                    ) : (
+                      item.action_name
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <select
+                        value={editValues.funding_type || 'CASH'}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            funding_type: e.target.value as 'CASH' | 'FINANCE',
+                          })
+                        }
+                        className="edit-input"
+                      >
+                        <option value="CASH">CASH</option>
+                        <option value="FINANCE">FINANCE</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`badge badge-${item.funding_type.toLowerCase()}`}
+                      >
+                        {item.funding_type}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        value={editValues.estimated_cost || ''}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            estimated_cost: parseFloat(e.target.value),
+                          })
+                        }
+                        className="edit-input"
+                      />
+                    ) : (
+                      formatCurrency(item.estimated_cost)
+                    )}
+                  </td>
+                  <td>{formatCurrency(actual)}</td>
+                  <td>
+                    <span
+                      className={
+                        variance > 0 ? 'variance-over' : 'variance-under'
+                      }
+                    >
+                      {formatCurrency(variance)}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="progress-bar-container">
+                      <div
+                        className="progress-bar-fill"
+                        style={{ width: `${Math.min(percent, 100)}%` }}
+                      />
+                      <span className="progress-text">
+                        {percent.toFixed(0)}%
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      {isEditing ? (
+                        <>
+                          <button
+                            className="action-button save-btn"
+                            onClick={handleSave}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="action-button cancel-btn"
+                            onClick={() => setEditingId(null)}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="action-button edit-btn"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="action-button log-btn"
+                            onClick={() => setSelectedItemId(item.id)}
+                          >
+                            Log
+                          </button>
+                          <button
+                            className="action-button delete-btn"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
