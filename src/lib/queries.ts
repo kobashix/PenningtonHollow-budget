@@ -216,3 +216,33 @@ export async function deleteBudgetItem(itemId: string): Promise<boolean> {
 
   return true;
 }
+
+export async function setActualPaid(
+  budgetItemId: string,
+  amount: number
+): Promise<boolean> {
+  // Delete existing transactions for this item
+  await supabase
+    .from('transactions')
+    .delete()
+    .eq('budget_item_id', budgetItemId);
+
+  // Create a single transaction with the new amount
+  if (amount > 0) {
+    const { error } = await supabase.from('transactions').insert([
+      {
+        budget_item_id: budgetItemId,
+        amount,
+        type: 'PAID_CASH',
+        date: new Date().toISOString().split('T')[0],
+      },
+    ]);
+
+    if (error) {
+      console.error('Error setting actual paid:', error);
+      return false;
+    }
+  }
+
+  return true;
+}

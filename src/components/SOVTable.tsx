@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { BudgetItem } from '../types/budget';
-import { updateBudgetItem, deleteBudgetItem } from '../lib/queries';
+import { updateBudgetItem, deleteBudgetItem, setActualPaid } from '../lib/queries';
 import '../styles/SOVTable.css';
 import LogPaymentModal from './LogPaymentModal';
 
@@ -22,7 +22,17 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
   const handleSave = async () => {
     if (!editingId) return;
     try {
-      await updateBudgetItem(editingId, editValues);
+      // If actual_paid was edited, handle it separately
+      if (editValues.actual_paid !== undefined) {
+        await setActualPaid(editingId, editValues.actual_paid);
+      }
+
+      // Update other fields
+      const { actual_paid, ...otherUpdates } = editValues;
+      if (Object.keys(otherUpdates).length > 0) {
+        await updateBudgetItem(editingId, otherUpdates);
+      }
+
       setEditingId(null);
       onPaymentLogged();
     } catch (err) {
@@ -42,16 +52,6 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
     }
   };
 
-  const groupedByPhase = items.reduce(
-    (acc, item) => {
-      if (!acc[item.phase]) {
-        acc[item.phase] = [];
-      }
-      acc[item.phase].push(item);
-      return acc;
-    },
-    {} as Record<string, BudgetItem[]>
-  );
 
   return (
     <>
@@ -72,13 +72,6 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
             </tr>
           </thead>
           <tbody>
-            {Object.entries(groupedByPhase).map(([phase]) => (
-              <tr key={phase} className="group-row">
-                <td colSpan={9} className="group-cell">
-                  <strong>{phase}</strong>
-                </td>
-              </tr>
-            ))}
             {items.map((item) => {
               const isEditing = editingId === item.id;
               const actual = item.actual_paid || 0;
@@ -91,23 +84,7 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
               return (
                 <tr key={item.id}>
                   <td>{item.phase}</td>
-                  <td>
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        value={editValues.process_number || ''}
-                        onChange={(e) =>
-                          setEditValues({
-                            ...editValues,
-                            process_number: parseInt(e.target.value),
-                          })
-                        }
-                        className="edit-input"
-                      />
-                    ) : (
-                      item.process_number
-                    )}
-                  </td>
+                  <td>{item.process_number}</td>
                   <td>
                     {isEditing ? (
                       <input
@@ -165,7 +142,23 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
                       formatCurrency(item.estimated_cost)
                     )}
                   </td>
-                  <td>{formatCurrency(actual)}</td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        value={editValues.actual_paid || ''}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            actual_paid: parseFloat(e.target.value),
+                          })
+                        }
+                        className="edit-input"
+                      />
+                    ) : (
+                      formatCurrency(actual)
+                    )}
+                  </td>
                   <td>
                     <span
                       className={
