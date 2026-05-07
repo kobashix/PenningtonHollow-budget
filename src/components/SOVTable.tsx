@@ -6,6 +6,7 @@ import {
   getExpandedRowModel,
   flexRender,
   createColumnHelper,
+  type ExpandedState,
 } from '@tanstack/react-table';
 import type { BudgetItem } from '../types/budget';
 import { updateBudgetItem, deleteBudgetItem } from '../lib/queries';
@@ -20,7 +21,13 @@ interface SOVTableProps {
 const columnHelper = createColumnHelper<BudgetItem>();
 
 export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
-  const [expanded, setExpanded] = useState({});
+  const [expanded, setExpanded] = useState<ExpandedState>(() => {
+    const allExpanded: Record<string, boolean> = {};
+    items.forEach((item) => {
+      allExpanded[item.phase] = true;
+    });
+    return allExpanded;
+  });
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<BudgetItem>>({});
