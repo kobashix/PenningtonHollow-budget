@@ -112,10 +112,12 @@ function App() {
             minute: '2-digit',
           })}
         </p>
+        <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '8px' }}>
+          v0.1
+        </p>
       </footer>
     </div>
   );
 }
 
 export default App;
-// Force rebuild
