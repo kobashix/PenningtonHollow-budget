@@ -19,6 +19,7 @@ export default function LogPaymentModal({
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [type, setType] = useState<TransactionType>('PAID_CASH');
   const [note, setNote] = useState('');
+  const [payee, setPayee] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,12 +38,15 @@ export default function LogPaymentModal({
         itemId,
         parseFloat(amount),
         type,
-        note || undefined
+        note || undefined,
+        date,
+        payee || undefined
       );
 
       if (result) {
         setAmount('');
         setNote('');
+        setPayee('');
         setDate(new Date().toISOString().split('T')[0]);
         setType('PAID_CASH');
         onSubmit();
@@ -110,6 +114,18 @@ export default function LogPaymentModal({
               <option value="PAID_CASH">Owner's Cash Equity</option>
               <option value="DRAWN_FROM_LOAN">Construction Loan Draw</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="payee">Payee (optional)</label>
+            <input
+              id="payee"
+              type="text"
+              value={payee}
+              onChange={(e) => setPayee(e.target.value)}
+              placeholder="e.g., Contractor name or vendor"
+              disabled={loading}
+            />
           </div>
 
           <div className="form-group">

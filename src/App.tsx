@@ -7,6 +7,7 @@ import {
   getDashboardMetrics,
   getBudgetItemsWithActuals,
 } from './lib/queries';
+import { exportToCSV, printDashboard } from './lib/exportUtils';
 import type { DashboardMetrics, BudgetItem } from './types/budget';
 
 function App() {
@@ -93,6 +94,17 @@ function App() {
           <h1>🏗️ Pennington Hollow</h1>
           <p className="subtitle">Construction Budget & Project Management</p>
         </div>
+        <div className="header-actions">
+          <button
+            className="header-button"
+            onClick={() => exportToCSV(items)}
+          >
+            📥 Export CSV
+          </button>
+          <button className="header-button" onClick={printDashboard}>
+            🖨️ Print
+          </button>
+        </div>
       </header>
 
       <main className="app-main">
@@ -113,7 +125,7 @@ function App() {
           })}
         </p>
         <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '8px' }}>
-          v0.2
+          v1.0
         </p>
       </footer>
     </div>

@@ -19,6 +19,8 @@ export interface BudgetItem {
   funding_type: FundingType;
   target_date: string | null;
   is_completed: boolean;
+  notes?: string;
+  contractor?: string;
   created_at?: string;
   actual_paid?: number; // computed via JOIN/aggregation
 }
@@ -30,6 +32,7 @@ export interface Transaction {
   date: string;
   type: TransactionType;
   note?: string;
+  payee?: string;
   created_at?: string;
 }
 
@@ -43,4 +46,6 @@ export interface DashboardMetrics {
   financeDrawn: number;
   financeRemaining: number;
   percentComplete: number;
+  itemsComplete: number;
+  phasesComplete: number;
 }

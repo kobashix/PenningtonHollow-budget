@@ -16,11 +16,36 @@
   padding: 40px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .header-content {
-  max-width: 1400px;
-  margin: 0 auto;
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.header-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.header-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .app-header h1 {
@@ -88,4 +113,39 @@
 
 .retry-button:hover {
   opacity: 0.9;
+}
+
+@media print {
+  .app-header {
+    padding: 20px;
+  }
+
+  .header-actions,
+  .sov-header .btn-add-item,
+  .search-filter-bar {
+    display: none;
+  }
+
+  .app-main {
+    padding: 0;
+  }
+
+  .sov-table-wrapper {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  .action-buttons {
+    display: none;
+  }
 }

@@ -1,4 +1,5 @@
 import type { DashboardMetrics } from '../types/budget';
+import { formatCurrency } from '../lib/utils';
 import '../styles/KPICards.css';
 
 interface KPICardsProps {
@@ -6,14 +7,6 @@ interface KPICardsProps {
 }
 
 export default function KPICards({ metrics }: KPICardsProps) {
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(val);
-  };
-
   return (
     <div className="kpi-grid">
       <div className="kpi-card">
@@ -53,6 +46,16 @@ export default function KPICards({ metrics }: KPICardsProps) {
         <div className="kpi-value finance">
           {formatCurrency(metrics.financeRemaining)} remaining
         </div>
+      </div>
+
+      <div className="kpi-card">
+        <div className="kpi-label">Items Complete</div>
+        <div className="kpi-value">{metrics.itemsComplete} / 26</div>
+      </div>
+
+      <div className="kpi-card">
+        <div className="kpi-label">Phases Complete</div>
+        <div className="kpi-value">{metrics.phasesComplete} / 6</div>
       </div>
     </div>
   );

@@ -27,13 +27,15 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       financeDrawn: 0,
       financeRemaining: 0,
       percentComplete: 0,
+      itemsComplete: 0,
+      phasesComplete: 0,
     };
   }
 
   // Fetch all budget items
   const { data: items } = await supabase
     .from('budget_items')
-    .select('id, estimated_cost, funding_type')
+    .select('id, estimated_cost, funding_type, is_completed, phase')
     .eq('project_id', PROJECT_ID);
 
   // Fetch all transactions
@@ -52,6 +54,8 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       financeDrawn: 0,
       financeRemaining: 0,
       percentComplete: 0,
+      itemsComplete: 0,
+      phasesComplete: 0,
     };
   }
 
@@ -87,6 +91,17 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   const percentComplete =
     totalEstimated > 0 ? (totalActual / totalEstimated) * 100 : 0;
 
+  // Count items and phases that are completed
+  const itemsComplete = items.filter((item) => item.is_completed).length;
+  const uniquePhases = new Set(items.map((item) => item.phase));
+  let phasesComplete = 0;
+  uniquePhases.forEach((phase) => {
+    const phaseItems = items.filter((item) => item.phase === phase);
+    if (phaseItems.every((item) => item.is_completed)) {
+      phasesComplete++;
+    }
+  });
+
   return {
     totalEstimated,
     totalActual,
@@ -97,6 +112,8 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     financeDrawn,
     financeRemaining: Math.max(0, financeAllocated - financeDrawn),
     percentComplete,
+    itemsComplete,
+    phasesComplete,
   };
 }
 
@@ -135,7 +152,9 @@ export async function addTransaction(
   budgetItemId: string,
   amount: number,
   type: TransactionType,
-  note?: string
+  note?: string,
+  date?: string,
+  payee?: string
 ): Promise<Transaction | null> {
   const { data, error } = await supabase
     .from('transactions')
@@ -145,7 +164,8 @@ export async function addTransaction(
         amount,
         type,
         note: note || null,
-        date: new Date().toISOString().split('T')[0],
+        payee: payee || null,
+        date: date || new Date().toISOString().split('T')[0],
       },
     ])
     .select()
@@ -219,7 +239,8 @@ export async function deleteBudgetItem(itemId: string): Promise<boolean> {
 
 export async function setActualPaid(
   budgetItemId: string,
-  amount: number
+  amount: number,
+  fundingType: string = 'CASH'
 ): Promise<boolean> {
   // Delete existing transactions for this item
   await supabase
@@ -229,11 +250,12 @@ export async function setActualPaid(
 
   // Create a single transaction with the new amount
   if (amount > 0) {
+    const transactionType = fundingType === 'FINANCE' ? 'DRAWN_FROM_LOAN' : 'PAID_CASH';
     const { error } = await supabase.from('transactions').insert([
       {
         budget_item_id: budgetItemId,
         amount,
-        type: 'PAID_CASH',
+        type: transactionType,
         date: new Date().toISOString().split('T')[0],
       },
     ]);
@@ -245,4 +267,52 @@ export async function setActualPaid(
   }
 
   return true;
+}
+
+export async function getTransactionsForItem(
+  budgetItemId: string
+): Promise<Transaction[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('budget_item_id', budgetItemId)
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching transactions:', error);
+    return [];
+  }
+
+  return (data || []) as Transaction[];
+}
+
+export async function deleteTransaction(transactionId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('id', transactionId);
+
+  if (error) {
+    console.error('Error deleting transaction:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function createBudgetItem(
+  item: Omit<BudgetItem, 'id' | 'created_at' | 'actual_paid'>
+): Promise<BudgetItem | null> {
+  const { data, error } = await supabase
+    .from('budget_items')
+    .insert([item])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating budget item:', error);
+    return null;
+  }
+
+  return data as BudgetItem;
 }
