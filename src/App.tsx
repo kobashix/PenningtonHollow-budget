@@ -113,7 +113,7 @@ function App() {
           })}
         </p>
         <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '8px' }}>
-          v0.1
+          v0.2
         </p>
       </footer>
     </div>
