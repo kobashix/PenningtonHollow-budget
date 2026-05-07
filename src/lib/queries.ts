@@ -185,3 +185,34 @@ export async function getProject() {
 
   return data;
 }
+
+export async function updateBudgetItem(
+  itemId: string,
+  updates: Partial<BudgetItem>
+): Promise<BudgetItem | null> {
+  const { error } = await supabase
+    .from('budget_items')
+    .update(updates)
+    .eq('id', itemId);
+
+  if (error) {
+    console.error('Error updating budget item:', error);
+    return null;
+  }
+
+  return null;
+}
+
+export async function deleteBudgetItem(itemId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('budget_items')
+    .delete()
+    .eq('id', itemId);
+
+  if (error) {
+    console.error('Error deleting budget item:', error);
+    return false;
+  }
+
+  return true;
+}

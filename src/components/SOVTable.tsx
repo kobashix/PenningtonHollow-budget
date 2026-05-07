@@ -8,6 +8,7 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table';
 import type { BudgetItem } from '../types/budget';
+import { updateBudgetItem, deleteBudgetItem } from '../lib/queries';
 import '../styles/SOVTable.css';
 import LogPaymentModal from './LogPaymentModal';
 
@@ -21,6 +22,36 @@ const columnHelper = createColumnHelper<BudgetItem>();
 export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
   const [expanded, setExpanded] = useState({});
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<Partial<BudgetItem>>({});
+
+  const handleEdit = (item: BudgetItem) => {
+    setEditingId(item.id);
+    setEditValues(item);
+  };
+
+  const handleSave = async () => {
+    if (!editingId) return;
+    try {
+      await updateBudgetItem(editingId, editValues);
+      setEditingId(null);
+      onPaymentLogged();
+    } catch (err) {
+      console.error('Failed to save:', err);
+      alert('Failed to save changes');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this item?')) return;
+    try {
+      await deleteBudgetItem(id);
+      onPaymentLogged();
+    } catch (err) {
+      console.error('Failed to delete:', err);
+      alert('Failed to delete item');
+    }
+  };
 
   const columns = useMemo(
     () => [
@@ -40,31 +71,116 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
       columnHelper.accessor('process_number', {
         id: 'number',
         header: '#',
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+          const item = info.row.original;
+          const isEditing = editingId === item.id;
+          return isEditing ? (
+            <input
+              type="number"
+              value={editValues.process_number || ''}
+              onChange={(e) =>
+                setEditValues({
+                  ...editValues,
+                  process_number: parseInt(e.target.value),
+                })
+              }
+              className="edit-input"
+            />
+          ) : (
+            info.getValue()
+          );
+        },
       }),
       columnHelper.accessor('action_name', {
         header: 'Action / Description',
+        cell: (info) => {
+          const item = info.row.original;
+          const isEditing = editingId === item.id;
+          return isEditing ? (
+            <input
+              type="text"
+              value={editValues.action_name || ''}
+              onChange={(e) =>
+                setEditValues({
+                  ...editValues,
+                  action_name: e.target.value,
+                })
+              }
+              className="edit-input"
+            />
+          ) : (
+            info.getValue()
+          );
+        },
       }),
       columnHelper.display({
         id: 'phase',
         header: 'Phase',
-        cell: (info) => info.row.original.phase,
+        cell: (info) => {
+          const item = info.row.original;
+          const isEditing = editingId === item.id;
+          return isEditing ? (
+            <input
+              type="text"
+              value={editValues.phase || ''}
+              onChange={(e) =>
+                setEditValues({ ...editValues, phase: e.target.value })
+              }
+              className="edit-input"
+            />
+          ) : (
+            item.phase
+          );
+        },
       }),
       columnHelper.display({
         id: 'funding_type',
         header: 'Funding',
         cell: (info) => {
-          const type = info.row.original.funding_type;
-          return (
-            <span className={`badge badge-${type.toLowerCase()}`}>
-              {type}
+          const item = info.row.original;
+          const isEditing = editingId === item.id;
+          return isEditing ? (
+            <select
+              value={editValues.funding_type || 'CASH'}
+              onChange={(e) =>
+                setEditValues({
+                  ...editValues,
+                  funding_type: e.target.value as 'CASH' | 'FINANCE',
+                })
+              }
+              className="edit-input"
+            >
+              <option value="CASH">CASH</option>
+              <option value="FINANCE">FINANCE</option>
+            </select>
+          ) : (
+            <span className={`badge badge-${item.funding_type.toLowerCase()}`}>
+              {item.funding_type}
             </span>
           );
         },
       }),
       columnHelper.accessor('estimated_cost', {
         header: 'Estimated',
-        cell: (info) => formatCurrency(info.getValue()),
+        cell: (info) => {
+          const item = info.row.original;
+          const isEditing = editingId === item.id;
+          return isEditing ? (
+            <input
+              type="number"
+              value={editValues.estimated_cost || ''}
+              onChange={(e) =>
+                setEditValues({
+                  ...editValues,
+                  estimated_cost: parseFloat(e.target.value),
+                })
+              }
+              className="edit-input"
+            />
+          ) : (
+            formatCurrency(info.getValue())
+          );
+        },
       }),
       columnHelper.display({
         id: 'actual_paid',
@@ -108,33 +224,56 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
         },
       }),
       columnHelper.display({
-        id: 'completed',
-        header: 'Done',
-        cell: (info) => (
-          <input
-            type="checkbox"
-            checked={info.row.original.is_completed}
-            onChange={() => {
-              onPaymentLogged();
-            }}
-            className="checkbox"
-          />
-        ),
-      }),
-      columnHelper.display({
         id: 'actions',
-        header: 'Log Payment',
-        cell: (info) => (
-          <button
-            className="action-button"
-            onClick={() => setSelectedItemId(info.row.original.id)}
-          >
-            Log
-          </button>
-        ),
+        header: 'Actions',
+        cell: (info) => {
+          const item = info.row.original;
+          const isEditing = editingId === item.id;
+          return (
+            <div className="action-buttons">
+              {isEditing ? (
+                <>
+                  <button
+                    className="action-button save-btn"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="action-button cancel-btn"
+                    onClick={() => setEditingId(null)}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="action-button edit-btn"
+                    onClick={() => handleEdit(item)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="action-button log-btn"
+                    onClick={() => setSelectedItemId(item.id)}
+                  >
+                    Log
+                  </button>
+                  <button
+                    className="action-button delete-btn"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
+          );
+        },
       }),
     ],
-    [onPaymentLogged]
+    [editingId, editValues, onPaymentLogged]
   );
 
   const table = useReactTable({
