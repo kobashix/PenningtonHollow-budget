@@ -251,7 +251,7 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
               );
 
               return (
-                <tbody key={`phase-${phase}`}>
+                <>
                   <tr className="group-row" onClick={() => togglePhase(phase)}>
                     <td className="group-cell">
                       <span className="expander">
@@ -545,7 +545,7 @@ export default function SOVTable({ items, onPaymentLogged }: SOVTableProps) {
                         </tr>
                       );
                     })}
-                </tbody>
+                </>
               );
             })}
 
